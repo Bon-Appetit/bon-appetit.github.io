@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for responsiveness and character set -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Accessibility -->
+    <meta name="description" content="Search for domains within curated lists without compromising your privacy.">
+    <title>Domain Search Tool</title>
+    <!-- External CSS for styling -->
+    <link rel="stylesheet" href="./assets/css/simple.min.css">
+    <link rel="stylesheet" href="./assets/css/custom.min.css">
+</head>
+<body>
+    <!-- Loading spinner -->
+    <div id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header Section -->
+        <header>
+            <h1>Search for Domain</h1>
+            <p>Search for a certain domain or phrase in a list of domains.</p>
+        </header>
+
+        <!-- Privacy Policy Section -->
+        <details>
+            <summary>Your privacy is valuable &mdash; Read how it works</summary>
+            <p>Your web searches go directly to GitHub through your browser. We don't log or track your activity, and there are no ads. We rely solely on GitHub's infrastructure.</p>
+        </details>
+
+        <!-- Search Box Section -->
+        <section class="search-box">
+            <!-- Domain List Selection -->
+            <div class="field">
+                <label for="listSelect">Choose a list:</label>
+                <select id="listSelect">
+                    <!-- Option groups for organized lists -->
+                    <optgroup label="Bon-Appetit/porn-domains/">
+                        <option value="https://raw.githubusercontent.com/Bon-Appetit/porn-domains/master/block.txt" selected="selected">block.txt ("Blacklist") in porn-domains</option>
+                        <option value="https://raw.githubusercontent.com/Bon-Appetit/porn-domains/master/pass.txt">pass.txt ("Whitelist") in porn-domains</option>
+                    </optgroup>
+                </select>
+            </div>
+            <!-- Search Input -->
+            <div class="field">
+                <label for="searchInput">Search phrase:</label>
+                <input type="text" id="searchInput" placeholder="Enter domain or phrase">
+            </div>
+            <!-- Regular Expression Option -->
+            <div class="field field-options">
+                <input type="checkbox" id="regexCheck">
+                <label for="regexCheck">Use regular expression</label>
+            </div>
+            <button id="searchBtn">Search</button>
+
+            <!-- Link to Github -->
+            <p>Hosted by GitHub &ndash; <a href="https://github.com/Bon-Appetit/bon-appetit.github.io/blob/main/domain-search/index.html" target="_blank">View source code</a></p>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results">
+            <!-- Results will be displayed here -->
+        </section>
+    </div>
+
+    <!-- JavaScript for interactive components -->
+    <script src="./assets/js/custom.min.js"></script>
+</body>
+</html>
