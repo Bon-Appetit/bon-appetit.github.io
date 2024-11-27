@@ -229,7 +229,9 @@ $(document).ready(function () {
     // Adds copy-to-clipboard functionality for the generated buttons
     function addCopyButtonFunctionality() {
         $('.copy-btn').on('click', function () {
-            navigator.clipboard.writeText($(this).data('domain'));
+            // Find the text container and get its plain text (without HTML tags)
+            const rawText = $(this).closest('.d-flex').find('p').text();
+            navigator.clipboard.writeText(rawText);
             showToast('<i class="bi bi-clipboard-check"></i> Copied to clipboard', 'text-bg-success');
         });
     }
