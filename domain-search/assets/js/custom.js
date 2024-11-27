@@ -9,6 +9,7 @@ $(document).ready(function () {
     const $resultsInfo = $('#resultsInfo');
     const $resultsContainer = $('#resultsContainer');
     const $viewSelect = $('#viewSelect');
+    const $sortSelect = $('#sortSelect'); // Add sort selector
 
     // Initialization
     initializeTooltips();
@@ -151,8 +152,13 @@ $(document).ready(function () {
         try {
             const regex = new RegExp(`(${searchPhrase})`, 'gi'); // Capturing group for the matching part
             return lines
-                .filter((line) => regex.test(line))  // Filter lines that match the phrase
-                .map((line) => line.replace(regex, '<mark>$1</mark>'));  // Wrap the matching part in <mark>
+                .map((line, index) => ({
+                    original: line, // Original line for sorting without tags
+                    highlighted: line.replace(regex, '<mark>$1</mark>'), // Line with highlighted matches
+                    matchCount: (line.match(regex) || []).length, // Number of matches in the line
+                    index: index, // Original index for sorting by "best matching"
+                }))
+                .filter((entry) => entry.matchCount > 0); // Keep only lines that have matches
         } catch (regexError) {
             showToast('Invalid regular expression. Please check your input.', 'text-bg-danger');
             return [];
@@ -162,9 +168,18 @@ $(document).ready(function () {
     // Displays the search results or a no results message
     function displayResults(matches) {
         if (matches.length > 0) {
+            // Get sorting preference
+            const sortBy = $sortSelect.val();
+            if (sortBy === "alphabetical") {
+                matches.sort((a, b) => a.original.localeCompare(b.original)); // Sort based on the original line without HTML tags
+            } else if (sortBy === "best") {
+                // Sort by "best matching", which prioritizes match count (descending) and keeps original order for ties
+                matches.sort((a, b) => b.matchCount - a.matchCount || a.index - b.index);
+            }
+
             const formattedMatchesCount = matches.length.toLocaleString(); // Format number with thousands separator
             $resultsInfo.html(`<p class="fs-3">Found <span class="badge bg-primary">${formattedMatchesCount}</span> matches:</p>`);
-            renderAllResults(matches);
+            renderAllResults(matches.map((entry) => entry.highlighted));
         } else {
             $results.html(
                 `<div class="alert alert-secondary" role="alert">No matches found. Try a different keyword or use regular expression.</div>`

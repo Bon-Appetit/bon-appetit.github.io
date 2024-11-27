@@ -82,13 +82,23 @@
                                 <div class="col">
                                     <div class="collapse multi-collapse" id="advancedSearchOptions">
                                         <div class="card card-body">
-                                            <!-- View Option: Cards or List -->
+                                            <!-- Sort Option -->
+                                            <div class="mb-3">
+                                                <label for="sortSelect" class="form-label fw-bold">
+                                                    <i class="bi bi-sort-down text-info"></i> Sort Results By:
+                                                </label>
+                                                <select id="sortSelect" class="form-select">
+                                                    <option value="best" selected>Best Matching (Default)</option>
+                                                    <option value="alphabetical">Alphabetical</option>
+                                                </select>
+                                            </div>
+                                            <!-- View Option -->
                                             <div class="mb-3">
                                                 <label for="viewSelect" class="form-label fw-bold">
                                                     <i class="bi bi-layout-sidebar text-info"></i> Display Results As:
                                                 </label>
                                                 <select id="viewSelect" class="form-select">
-                                                    <option value="cards" selected>Cards</option>
+                                                    <option value="cards" selected>Cards (Default)</option>
                                                     <option value="list">List</option>
                                                 </select>
                                             </div>
