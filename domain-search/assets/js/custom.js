@@ -10,6 +10,7 @@ $(document).ready(function () {
     const $resultsContainer = $('#resultsContainer');
     const $viewSelect = $('#viewSelect');
     const $sortSelect = $('#sortSelect'); // Add sort selector
+    const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
 
     // Initialization
     initializeTooltips();
@@ -131,7 +132,8 @@ $(document).ready(function () {
             method: 'GET',
         })
             .done(function (data) {
-                let matches = getMatches(data, searchPhrase);
+                const highlightEnabled = $highlightCheckbox.is(':checked'); // Check if highlight is enabled
+                let matches = getMatches(data, searchPhrase, highlightEnabled);
                 displayResults(matches);
             })
             .fail(function () {
@@ -146,7 +148,7 @@ $(document).ready(function () {
     }
 
     // Extracts lines that match the search phrase from the response data and highlights them
-    function getMatches(data, searchPhrase) {
+    function getMatches(data, searchPhrase, highlightEnabled) {
         const lines = data.split('\n');
 
         try {
@@ -154,7 +156,7 @@ $(document).ready(function () {
             return lines
                 .map((line, index) => ({
                     original: line, // Original line for sorting without tags
-                    highlighted: line.replace(regex, '<mark>$1</mark>'), // Line with highlighted matches
+                    highlighted: highlightEnabled ? line.replace(regex, '<mark>$1</mark>') : line, // Conditionally apply highlights
                     matchCount: (line.match(regex) || []).length, // Number of matches in the line
                     index: index, // Original index for sorting by "best matching"
                 }))
