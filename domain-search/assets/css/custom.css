@@ -39,3 +39,8 @@ body {
     cursor: pointer;
     z-index: 1337; /* High z-index to make sure it's always clickable */
 }
+
+/* Set cursor style to "pointer" ("hand") to indicate its clickable */
+label {
+    cursor: pointer;
+}
