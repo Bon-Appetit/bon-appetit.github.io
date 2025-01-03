@@ -200,8 +200,8 @@ $(document).ready(function () {
             currentIndex += batch.length;
 
             const renderedHtml = batch.map(result => viewType === "cards" ?
-                `<div class="col"><div class="card h-100 shadow-sm bg-body"><div class="card-body d-flex justify-content-between align-items-center"><p class="card-text mb-0">${result}</p><button class="btn btn-outline-primary btn-sm copy-btn" data-domain="${result}" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy domain to clipboard"><i class="bi bi-clipboard"></i> Copy</button></div></div></div>` :
-                `<div class="list-group-item d-flex justify-content-between align-items-center"><p class="mb-0">${result}</p><button class="btn btn-outline-primary btn-sm copy-btn" data-domain="${result}" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy domain to clipboard"><i class="bi bi-clipboard"></i> Copy</button></div>`
+                `<div class="col"><div class="card h-100 shadow-sm bg-body"><div class="card-body d-flex justify-content-between align-items-center"><p class="card-text mb-0 text-break">${result}</p><button class="btn btn-outline-primary btn-sm ms-3 p-2 copy-btn" data-domain="${result}" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy domain to clipboard"><i class="bi bi-clipboard"></i> Copy</button></div></div></div>` :
+                `<div class="list-group-item d-flex justify-content-between align-items-center"><p class="mb-0 text-break">${result}</p><button class="btn btn-outline-primary btn-sm ms-3 p-2 copy-btn" data-domain="${result}" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy domain to clipboard"><i class="bi bi-clipboard"></i> Copy</button></div>`
             ).join("");
 
             if (viewType === "cards") {
