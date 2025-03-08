@@ -66,7 +66,14 @@
                                 <label for="searchInput" class="form-label fw-bold">
                                     <i class="bi bi-cursor-text"></i> Enter Domain or Phrase
                                 </label>
-                                <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Enter domain or phrase">
+                                <div class="input-group">
+                                    <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Enter domain or phrase">
+                                    <span class="input-group-text" data-bs-toggle="tooltip" data-bs-title="Enable regular expression">
+                                        <div class="form-check form-switch">
+                                            <i class="bi bi-regex text-primary"></i> <input class="form-check-input" type="checkbox" id="useRegex" role="switch">
+                                        </div>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
