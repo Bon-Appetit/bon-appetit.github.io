@@ -41,6 +41,6 @@ body {
 }
 
 /* Set cursor style to "pointer" ("hand") to indicate its clickable */
-label {
+label, input[type="checkbox"] {
     cursor: pointer;
 }
