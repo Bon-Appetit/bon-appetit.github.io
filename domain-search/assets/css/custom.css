@@ -30,7 +30,7 @@ body {
 #toTop {
     /* Button to scroll to the top of the page */
     position: fixed;
-    bottom: 60px;
+    bottom: 80px;
     right: 20px;
     display: none; /* Initially hidden, shown when scrolling down */
     border: none;
