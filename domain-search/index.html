@@ -1,41 +1,419 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Out of Order</title>
-  <style>
-    body {
-      background-color: #f8d7da;
-      color: #721c24;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background-color: #f5c6cb;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-size: 2.5em;
-    }
-    p {
-      margin: 0;
-      font-size: 1.2em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Search for domains in curated domain lists using regular expressions.">
+    <link rel="icon" href="./assets/img/favicon.ico" type="image/x-icon">
+    <title>Domain Search</title>
+
+    <!-- Prefetch DNS -->
+    <link rel="dns-prefetch" href="//raw.githubusercontent.com">
+
+    <!-- External CSS & JavaScript Dependencies -->
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="./assets/css/custom.css" rel="stylesheet">
 </head>
+
 <body>
-  <div class="container">
-    <h1>Out of Order</h1>
-    <p>This service is temporarily unavailable. Please check back later.</p>
-  </div>
+    <!-- Header Section -->
+    <header class="text-light bg-black py-3 px-5 top-0 w-100 z-3" style="min-height: 40px;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-lg-start text-center">
+                    <h1><i class="bi bi-binoculars-fill text-success"></i> Domain Search</h1>
+                </div>
+                <div class="col-lg-6 text-lg-end text-center mt-3 mt-lg-0">
+                    <div class="d-inline-flex align-items-center gap-3">
+                        <div class="form-check form-switch d-inline-flex align-items-center">
+                            <input class="form-check-input" type="checkbox" id="darkModeToggle" style="cursor:pointer">
+                            <label class="form-check-label ms-2" for="darkModeToggle" style="cursor:pointer">
+                                <i class="bi bi-moon-stars-fill text-warning"></i> Dark Mode
+                            </label>
+                        </div>
+                        <!-- Off-canvas About Trigger Button -->
+                        <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasAbout" aria-controls="offcanvasAbout">
+                            <i class="bi bi-list"></i> About
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container z-1" style="margin-top: 80px; margin-bottom: 60px;">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <!-- Search Box Section -->
+                <section class="search-box rounded-3 shadow-lg p-4 mb-5">
+                    <!-- Header Information for Search Box -->
+                    <header class="mb-4">
+                        <h2>Domain Search</h2>
+                        <p class="lead">Use this form to search certain lists for a specific domain or any phrase,
+                            including regular expressions. Searches can even be performed across different commit states
+                            (versions).</p>
+                    </header>
+
+                    <div class="row">
+                        <!-- First Column: Select Domain List -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="listSelect" class="form-label fw-bold">
+                                    <i class="bi bi-menu-button text-info"></i> List
+                                    <i class="bi bi-info-circle text-primary" data-bs-toggle="popover"
+                                    data-bs-content="Select a list to search for domains."></i>
+                                </label>
+                                <select id="listSelect" class="form-select form-select-lg">
+                                    <optgroup label="Bon-Appetit/porn-domains/">
+                                        <option
+                                            value="https://raw.githubusercontent.com/Bon-Appetit/porn-domains/master/block.txt"
+                                            selected="selected">block.txt ("Blacklist") in porn-domains</option>
+                                        <option
+                                            value="https://raw.githubusercontent.com/Bon-Appetit/porn-domains/master/pass.txt">
+                                            pass.txt ("Whitelist") in porn-domains</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Second Column: Input Search Phrase -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="searchInput" class="form-label fw-bold">
+                                    <i class="bi bi-cursor-text text-info"></i> Domain name or phrase
+                                    <i class="bi bi-info-circle text-primary" data-bs-toggle="popover"
+                                        data-bs-content="Enter a domain name or phrase to search. Use the toggle to enable regular expressions for advanced search patterns."></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" id="searchInput" class="form-control form-control-lg"
+                                        placeholder="Enter domain or phrase">
+                                    <span class="input-group-text" data-bs-toggle="popover"
+                                        data-bs-content="Enable regular expression">
+                                        <div class="form-check form-switch">
+                                            <i class="bi bi-regex text-primary"></i> <input class="form-check-input"
+                                                type="checkbox" id="useRegex" role="switch">
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input SHA1 Hash -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="sha1Input" class="form-label fw-bold">
+                                    <i class="bi bi-hash text-info"></i> Enter SHA1 Hash (optional)
+                                    <i class="bi bi-info-circle text-primary" data-bs-toggle="popover"
+                                        data-bs-content="Enter a SHA1 hash to search for phrases in specific versions of the list. SHA1 hashes can be found on the commits page."></i>
+                                </label>
+                                <input type="text" id="sha1Input" class="form-control"
+                                    placeholder="Enter SHA1 hash for specific version">
+                            </div>
+                        </div>
+
+                        <!-- Advanced Search Options Toggle -->
+                        <div class="col-md-12">
+                            <p class="d-inline-flex gap-1">
+                                <a data-bs-toggle="collapse" href="#advancedSearchOptions" role="button"
+                                    class="btn btn-outline-secondary btn-sm" aria-expanded="false"
+                                    aria-controls="advancedSearchOptions">
+                                    <i class="bi bi-toggles2"></i> Toggle Advanced Options
+                                </a>
+                            </p>
+                            <!-- Advanced Search Options -->
+                            <div class="row">
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="advancedSearchOptions">
+                                        <div class="card card-body">
+                                            <!-- Highlight Option -->
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="highlightResults" role="switch" checked>
+                                                    <label for="highlightResults" class="form-check-label">
+                                                        <i class="bi bi-highlighter text-info"></i> Highlight matches in
+                                                        results
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- Sort Option -->
+                                            <div class="mb-3">
+                                                <label for="sortSelect" class="form-label fw-bold">
+                                                    <i class="bi bi-sort-down text-info"></i> Sort Results By:
+                                                </label>
+                                                <select id="sortSelect" class="form-select">
+                                                    <option value="best" selected>Best Matching (Default)</option>
+                                                    <option value="alphabetical">Alphabetical</option>
+                                                </select>
+                                            </div>
+                                            <!-- View Option -->
+                                            <div class="mb-3">
+                                                <label for="viewSelect" class="form-label fw-bold">
+                                                    <i class="bi bi-layout-sidebar text-info"></i> Display Results As:
+                                                </label>
+                                                <select id="viewSelect" class="form-select">
+                                                    <option value="cards" selected>Cards (Default)</option>
+                                                    <option value="list">List</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="row">
+                        <div class="col text-center">
+                            <button id="searchBtn" class="btn btn-success btn-lg mt-3 text-uppercase">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Results Section -->
+                <section id="results" class="my-3">
+                    <div id="resultsInfo"></div>
+                    <div class="row" id="resultsContainer"></div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Off-canvas About (Replaces Footer) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasAboutLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasAboutLabel">About</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+
+            <div class="mb-4">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="https://github.com/Bon-Appetit/bon-appetit.github.io/blob/main/domain-search"
+                            target="_blank">
+                            <i class="bi bi-eye text-info"></i> Source code
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="https://github.com/Bon-Appetit/bon-appetit.github.io/commits/main/domain-search"
+                            target="_blank">
+                            <i class="bi bi-clock-history text-info"></i> Changelog
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Accordion Section with Information -->
+            <div class="accordion" id="accordionInfo">
+                <!-- Accordion Item 1 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            What is "Domain Search"?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            Domain Search is a live tool that lets you search through curated domain lists using plain
+                            text or regular expressions. It’s designed to quickly filter and display matching domains.
+                        </div>
+                    </div>
+                </div>
+                <!-- Accordion Item 2 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            How does "Domain Search" work?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            It works by taking your search input and filtering a selected domain list (such as those
+                            from a GitHub repository). It supports advanced options like highlighting matches, sorting,
+                            and different result views.
+                        </div>
+                    </div>
+                </div>
+                <!-- Accordion Item 3 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            Can I use "Domain Search" locally?
+                        </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            Yes, you can use Domain Search locally. It is built as a static webpage using HTML, CSS, and
+                            JavaScript. Just ensure you have internet connectivity to fetch the remote domain lists, if
+                            needed.
+                        </div>
+                    </div>
+                </div>
+                <!-- Accordion Item 4 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Will searches be saved by "Domain Search"?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            No, searches are not saved. Domain Search performs all filtering on the client side without
+                            storing your search queries or results.
+                        </div>
+                    </div>
+                </div>
+                <!-- Accordion Item 5 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFive">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                            Who is maintaining "Domain Search"?
+                        </button>
+                    </h2>
+                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            "Domain Search" is maintained by <a href="https://github.com/CodeAlDente"
+                                target="_blank">CodeAlDente</a> for <a href="https://github.com/Bon-Appetit"
+                                target="_blank">Bon-Appetit</a>.
+                        </div>
+                    </div>
+                </div>
+                <!-- Accordion Item 6 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSix">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                            How can I support "Domain Search"?
+                        </button>
+                    </h2>
+                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            You can support "Domain Search" by starring the repository on GitHub, reporting issues, or
+                            contributing code and improvements. Sharing the tool with others is also a great way to
+                            help! Donations are also welcome and appreciated. You can support me at
+                            <a href="https://www.buymeacoffee.com/CodeAlDente" target="_blank">Buy Me a Coffee</a>.
+                        </div>
+                    </div>
+                </div>
+                <!-- Accordion Item 7 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSeven">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                            I have more questions, how to get in touch?
+                        </button>
+                    </h2>
+                    <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven"
+                        data-bs-parent="#accordionInfo">
+                        <div class="accordion-body">
+                            If you have any questions, want to report a bug, or request a new feature, feel free to
+                            reach out via email at <a href="mailto:mail@codealdente.ovh">mail@codealdente.ovh</a> (<a
+                                href="https://keys.mailvelope.com/pks/lookup?op=get&search=mail@codealdente.ovh"
+                                target="_blank">PGP-Key</a>). Alternatively, you can create an issue on <a
+                                href="https://github.com/Bon-Appetit/bon-appetit.github.io/issues"
+                                target="_blank">GitHub Issues</a>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End of Accordion Section -->
+
+            <div class="my-4">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="mailto:mail@codealdente.ovh" target="_blank">
+                            <i class="bi bi-envelope-fill text-info"></i> mail@codealdente.ovh
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="https://keys.mailvelope.com/pks/lookup?op=get&search=mail@codealdente.ovh"
+                            target="_blank">
+                            <i class="bi bi-key-fill text-info"></i> PGP-Key
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.buymeacoffee.com/CodeAlDente" target="_blank">
+                            <i class="bi bi-cup-fill text-info"></i> Buy Me a Coffee
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="my-4">
+                <ul class="nav justify-content-center">
+                    <li class="nav-item">
+                        Hosted with <i class="bi bi-heart-fill text-danger"></i> by GitHub
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top Button -->
+    <button class="btn btn-secondary btn-md" id="toTop">
+        <i class="bi bi-arrow-up-circle-fill text-light fs-4"></i>
+    </button>
+
+    <!-- Loading Spinner (During Search) -->
+    <div id="loadingSpinner" class="loading-overlay d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-5"
+        style="z-index: 1100; margin-bottom: 30px;">
+        <div id="notificationToast" class="toast align-items-center text-bg-primary border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                    <!-- Toast message content -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JavaScript Dependencies -->
+    <!-- jQuery Library -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JavaScript and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="./assets/js/custom.js"></script>
 </body>
+
 </html>
