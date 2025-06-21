@@ -93,24 +93,13 @@ $(document).ready(function () {
     function handleSearchClick() {
         const listUrl = $('#listSelect').val();
         const searchPhrase = $('#searchInput').val().trim();
-        const sha1Input = $('#sha1Input').val().trim();
-        const sha1Pattern = /^[a-f0-9]{40}$/i;
-
-        let url = listUrl;
-
-        if (sha1Input && sha1Pattern.test(sha1Input)) {
-            url = url.replace('/master/', '/' + sha1Input + '/');
-        } else if (sha1Input) {
-            showToast('<i class="bi bi-exclamation-circle-fill"></i> Invalid SHA1 hash.', 'text-bg-warning');
-            return;
-        }
 
         if (!searchPhrase) {
             showToast('<i class="bi bi-exclamation-circle-fill"></i> Please enter a search phrase.', 'text-bg-warning');
             return;
         }
 
-        performSearch(url, searchPhrase);
+        performSearch(listUrl, searchPhrase);
     }
 
     /*************************
