@@ -11,11 +11,13 @@ $(document).ready(function () {
     const $viewSelect = $('#viewSelect');
     const $sortSelect = $('#sortSelect'); // Add sort selector
     const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
+    const $listSelect = $('#listSelect'); // List select dropdown
 
     // Initialization
     initializeTooltips();
     initializeDarkMode();
     initializeEventListeners();
+    loadMetaData(); // Load lists
 
     /*************************
      * Initialization Functions
@@ -284,5 +286,32 @@ $(document).ready(function () {
             navigator.clipboard.writeText(rawText);
             showToast('<i class="bi bi-clipboard-check"></i> Copied to clipboard', 'text-bg-success');
         });
+    }
+
+    // Dynamically load blocklist/allowlist filenames from meta.json and populate the listSelect dropdown
+    function loadMetaData() {
+        const metaUrl = 'https://raw.githubusercontent.com/Bon-Appetit/porn-domains/refs/heads/main/meta.json';
+        const baseUrl = 'https://raw.githubusercontent.com/Bon-Appetit/porn-domains/refs/heads/main/';
+
+        fetch(metaUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load meta.json');
+                return response.json();
+            })
+            .then(meta => {
+                $listSelect.empty();
+                $listSelect.append('<optgroup label="Bon-Appetit/porn-domains/">');
+                if (meta.blocklist) {
+                    $listSelect.append(`<option value="${baseUrl}${meta.blocklist}" selected>${meta.blocklist} (\"Blacklist\") in porn-domains</option>`);
+                }
+                if (meta.allowlist) {
+                    $listSelect.append(`<option value="${baseUrl}${meta.allowlist}">${meta.allowlist} (\"Whitelist\") in porn-domains</option>`);
+                }
+                $listSelect.append('</optgroup>');
+            })
+            .catch(() => {
+                $listSelect.empty();
+                $listSelect.append('<option value="" disabled selected>Could not load lists</option>');
+            });
     }
 });
