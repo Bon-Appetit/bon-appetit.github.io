@@ -83,18 +83,23 @@
                                 <label for="searchInput" class="form-label fw-bold">
                                     <i class="bi bi-cursor-text text-info"></i> Domain name or phrase
                                     <i class="bi bi-info-circle text-primary" data-bs-toggle="popover"
-                                        data-bs-content="Enter a domain name or phrase to search. Use the toggle to enable regular expressions for advanced search patterns."></i>
+                                        data-bs-content="Enter a domain name or phrase to search."></i>
                                 </label>
-                                <div class="input-group">
+                                <div class="input-group mb-2" id="singleSearchGroup">
                                     <input type="text" id="searchInput" class="form-control form-control-lg"
                                         placeholder="Enter domain or phrase">
-                                    <span class="input-group-text" data-bs-toggle="popover"
-                                        data-bs-content="Enable regular expression">
-                                        <div class="form-check form-switch">
-                                            <i class="bi bi-regex text-primary"></i> <input class="form-check-input"
-                                                type="checkbox" id="useRegex" role="switch">
-                                        </div>
-                                    </span>
+                                </div>
+                                <!-- Multi Search Textarea (hidden by default) -->
+                                <div class="input-group mb-2 d-none" id="multiSearchGroup">
+                                    <textarea id="multiSearchInput" class="form-control form-control-lg" rows="4"
+                                        placeholder="Enter one domain or phrase per line"></textarea>
+                                </div>
+                                <!-- Multi Search Toggle -->
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="multiSearchToggle" role="switch">
+                                    <label class="form-check-label" for="multiSearchToggle">
+                                        <i class="bi bi-list-ul text-info"></i> Multi Search (one per line)
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -121,6 +126,15 @@
                                                     <label for="highlightResults" class="form-check-label">
                                                         <i class="bi bi-highlighter text-info"></i> Highlight matches in
                                                         results
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- Regex Option -->
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="useRegex" role="switch">
+                                                    <label class="form-check-label" for="useRegex">
+                                                        <i class="bi bi-regex text-primary"></i> Enable regular expression
                                                     </label>
                                                 </div>
                                             </div>

@@ -8,10 +8,15 @@ $(document).ready(function () {
     const $results = $('#results');
     const $resultsInfo = $('#resultsInfo');
     const $resultsContainer = $('#resultsContainer');
+    const $useRegex = $('#useRegex'); // Toggle for using regular expressions
     const $viewSelect = $('#viewSelect');
     const $sortSelect = $('#sortSelect'); // Add sort selector
     const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
     const $listSelect = $('#listSelect'); // List select dropdown
+    const $multiSearchToggle = $('#multiSearchToggle');
+    const $multiSearchGroup = $('#multiSearchGroup');
+    const $multiSearchInput = $('#multiSearchInput');
+    const $searchInput = $('#searchInput');
 
     // Initialization
     initializeTooltips();
@@ -61,6 +66,9 @@ $(document).ready(function () {
 
         // Search button click event
         $searchBtn.on('click', handleSearchClick);
+
+        // Multi search toggle
+        $multiSearchToggle.on('change', handleMultiSearchToggle);
     }
 
     /*************************
@@ -89,17 +97,36 @@ $(document).ready(function () {
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
     }
 
+    // Toggle between single and multi search input
+    function handleMultiSearchToggle() {
+        if ($multiSearchToggle.is(':checked')) {
+            $searchInput.addClass('d-none');
+            $multiSearchGroup.removeClass('d-none');
+        } else {
+            $searchInput.removeClass('d-none');
+            $multiSearchGroup.addClass('d-none');
+        }
+    }
+
     // Handles search button click, initiates search if a phrase is provided
     function handleSearchClick() {
         const listUrl = $('#listSelect').val();
-        const searchPhrase = $('#searchInput').val().trim();
+        let searchPhrases = [];
+        if ($multiSearchToggle.is(':checked')) {
+            // Multi search mode
+            searchPhrases = $multiSearchInput.val().split('\n').map(s => s.trim()).filter(Boolean);
+        } else {
+            // Single search mode
+            const single = $searchInput.val().trim();
+            if (single) searchPhrases = [single];
+        }
 
-        if (!searchPhrase) {
+        if (!searchPhrases.length) {
             showToast('<i class="bi bi-exclamation-circle-fill"></i> Please enter a search phrase.', 'text-bg-warning');
             return;
         }
 
-        performSearch(listUrl, searchPhrase);
+        performSearch(listUrl, searchPhrases);
     }
 
     /*************************
@@ -125,7 +152,7 @@ $(document).ready(function () {
     }
 
     // Handles performing the search by making an AJAX call
-    function performSearch(listUrl, searchPhrase) {
+    function performSearch(listUrl, searchPhrases) {
         setLoadingState(true);
         $resultsInfo.empty();
         $resultsContainer.empty();
@@ -135,8 +162,8 @@ $(document).ready(function () {
             method: 'GET',
         })
             .done(function (data) {
-                const highlightEnabled = $highlightCheckbox.is(':checked'); // Check if highlight is enabled
-                let matches = getMatches(data, searchPhrase, highlightEnabled);
+                const highlightEnabled = $highlightCheckbox.is(':checked');
+                let matches = getMatches(data, searchPhrases, highlightEnabled);
                 displayResults(matches);
             })
             .fail(function () {
@@ -151,35 +178,63 @@ $(document).ready(function () {
     }
 
     // Extracts lines that match the search phrase from the response data and highlights them
-    function getMatches(data, searchPhrase, highlightEnabled) {
+    function getMatches(data, searchPhrases, highlightEnabled) {
         const lines = data.split('\n');
-        const useRegex = $('#useRegex').is(':checked'); // Check if regex toggle is enabled
+        const useRegex = $useRegex.is(':checked');
+        if (!Array.isArray(searchPhrases)) searchPhrases = [searchPhrases];
 
         if (useRegex) {
+            let regexes = [];
             try {
-                const regex = new RegExp(`(${searchPhrase})`, 'gi'); // Use regex if enabled
-                return lines
-                    .map((line, index) => ({
-                        original: line,
-                        highlighted: highlightEnabled ? line.replace(regex, '<mark>$1</mark>') : line,
-                        matchCount: (line.match(regex) || []).length,
-                        index: index,
-                    }))
-                    .filter((entry) => entry.matchCount > 0);
+                regexes = searchPhrases.map(p => new RegExp(`(${p})`, 'gi'));
             } catch (regexError) {
                 showToast('Invalid regular expression. Please check your input.', 'text-bg-danger');
                 return [];
             }
-        } else {
-            // Use normal string matching if regex is disabled
             return lines
-                .map((line, index) => ({
-                    original: line,
-                    highlighted: highlightEnabled ? line.replace(new RegExp(searchPhrase, 'gi'), '<mark>$&</mark>') : line,
-                    matchCount: line.toLowerCase().includes(searchPhrase.toLowerCase()) ? 1 : 0,
-                    index: index,
-                }))
-                .filter((entry) => entry.matchCount > 0);
+                .map((line, index) => {
+                    let matchCount = 0;
+                    let highlighted = line;
+                    regexes.forEach(r => {
+                        const matches = line.match(r);
+                        if (matches) {
+                            matchCount += matches.length;
+                            if (highlightEnabled) {
+                                highlighted = highlighted.replace(r, '<mark>$1</mark>');
+                            }
+                        }
+                    });
+                    return {
+                        original: line,
+                        highlighted: highlighted,
+                        matchCount: matchCount,
+                        index: index,
+                    };
+                })
+                .filter(entry => entry.matchCount > 0);
+        } else {
+            // Plain string search
+            return lines
+                .map((line, index) => {
+                    let matchCount = 0;
+                    let highlighted = line;
+                    searchPhrases.forEach(p => {
+                        if (line.toLowerCase().includes(p.toLowerCase())) {
+                            matchCount++;
+                            if (highlightEnabled) {
+                                // Highlight all occurrences
+                                highlighted = highlighted.replace(new RegExp(p, 'gi'), '<mark>$&</mark>');
+                            }
+                        }
+                    });
+                    return {
+                        original: line,
+                        highlighted: highlighted,
+                        matchCount: matchCount,
+                        index: index,
+                    };
+                })
+                .filter(entry => entry.matchCount > 0);
         }
     }
 
