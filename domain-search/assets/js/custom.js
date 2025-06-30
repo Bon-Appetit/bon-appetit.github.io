@@ -1,18 +1,18 @@
 // Main JavaScript Entry Point
 $(document).ready(function () {
     // Cached DOM elements for performance
-    const $toTop = $('#toTop');
-    const $darkModeToggle = $('#darkModeToggle');
-    const $searchBtn = $('#searchBtn');
-    const $loadingSpinner = $('#loadingSpinner');
-    const $results = $('#results');
-    const $resultsInfo = $('#resultsInfo');
-    const $resultsContainer = $('#resultsContainer');
+    const $toTop = $('#toTop'); // "To Top" button
+    const $darkModeToggle = $('#darkModeToggle');  // Dark mode toggle switch
+    const $searchBtn = $('#searchBtn'); // Search button
+    const $loadingSpinner = $('#loadingSpinner'); // Loading spinner element
+    const $results = $('#results'); // Results container
+    const $resultsInfo = $('#resultsInfo'); // Results info container
+    const $resultsContainer = $('#resultsContainer'); // Results container for displaying search results
     const $listSelect = $('#listSelect'); // List select dropdown
-    const $multiSearchToggle = $('#multiSearchToggle');
-    const $multiSearchGroup = $('#multiSearchGroup');
-    const $multiSearchInput = $('#multiSearchInput');
-    const $searchInput = $('#searchInput');
+    const $multiSearchToggle = $('#multiSearchToggle'); // Multi search toggle switch
+    const $multiSearchGroup = $('#multiSearchGroup'); // Multi search input group
+    const $multiSearchInput = $('#multiSearchInput'); // Multi search input field
+    const $searchInput = $('#searchInput'); // Single search input field
     const $useRegex = $('#useRegex'); // Toggle for using regular expressions
     const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
     const $viewSelect = $('#viewSelect'); // View type selector (cards or list)
