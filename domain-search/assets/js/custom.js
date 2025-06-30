@@ -8,15 +8,15 @@ $(document).ready(function () {
     const $results = $('#results');
     const $resultsInfo = $('#resultsInfo');
     const $resultsContainer = $('#resultsContainer');
-    const $useRegex = $('#useRegex'); // Toggle for using regular expressions
-    const $viewSelect = $('#viewSelect');
-    const $sortSelect = $('#sortSelect'); // Add sort selector
-    const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
     const $listSelect = $('#listSelect'); // List select dropdown
     const $multiSearchToggle = $('#multiSearchToggle');
     const $multiSearchGroup = $('#multiSearchGroup');
     const $multiSearchInput = $('#multiSearchInput');
     const $searchInput = $('#searchInput');
+    const $useRegex = $('#useRegex'); // Toggle for using regular expressions
+    const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
+    const $viewSelect = $('#viewSelect'); // View type selector (cards or list)
+    const $sortSelect = $('#sortSelect'); // Add sort selector
 
     // Initialization
     initializeTooltips();

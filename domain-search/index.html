@@ -118,6 +118,15 @@
                                 <div class="col">
                                     <div class="collapse multi-collapse" id="advancedSearchOptions">
                                         <div class="card card-body">
+                                            <!-- Regex Option -->
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="useRegex" role="switch">
+                                                    <label class="form-check-label" for="useRegex">
+                                                        <i class="bi bi-regex text-primary"></i> Enable regular expression
+                                                    </label>
+                                                </div>
+                                            </div>
                                             <!-- Highlight Option -->
                                             <div class="mb-3">
                                                 <div class="form-check form-switch">
@@ -129,14 +138,15 @@
                                                     </label>
                                                 </div>
                                             </div>
-                                            <!-- Regex Option -->
+                                            <!-- View Option -->
                                             <div class="mb-3">
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="useRegex" role="switch">
-                                                    <label class="form-check-label" for="useRegex">
-                                                        <i class="bi bi-regex text-primary"></i> Enable regular expression
-                                                    </label>
-                                                </div>
+                                                <label for="viewSelect" class="form-label fw-bold">
+                                                    <i class="bi bi-layout-sidebar text-info"></i> Display Results As:
+                                                </label>
+                                                <select id="viewSelect" class="form-select">
+                                                    <option value="cards" selected>Cards (Default)</option>
+                                                    <option value="list">List</option>
+                                                </select>
                                             </div>
                                             <!-- Sort Option -->
                                             <div class="mb-3">
@@ -146,16 +156,6 @@
                                                 <select id="sortSelect" class="form-select">
                                                     <option value="best" selected>Best Matching (Default)</option>
                                                     <option value="alphabetical">Alphabetical</option>
-                                                </select>
-                                            </div>
-                                            <!-- View Option -->
-                                            <div class="mb-3">
-                                                <label for="viewSelect" class="form-label fw-bold">
-                                                    <i class="bi bi-layout-sidebar text-info"></i> Display Results As:
-                                                </label>
-                                                <select id="viewSelect" class="form-select">
-                                                    <option value="cards" selected>Cards (Default)</option>
-                                                    <option value="list">List</option>
                                                 </select>
                                             </div>
                                         </div>
