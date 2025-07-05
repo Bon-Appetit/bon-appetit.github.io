@@ -346,10 +346,10 @@ $(document).ready(function () {
                 $listSelect.empty();
                 $listSelect.append('<optgroup label="Bon-Appetit/porn-domains/">');
                 if (meta.blocklist) {
-                    $listSelect.append(`<option value="${baseUrl}${meta.blocklist}" selected>${meta.blocklist} (\"Blacklist\") in porn-domains</option>`);
+                    $listSelect.append(`<option value="${baseUrl}${meta.blocklist.name}" selected>${meta.blocklist.name} (\"Blacklist\") in porn-domains</option>`);
                 }
                 if (meta.allowlist) {
-                    $listSelect.append(`<option value="${baseUrl}${meta.allowlist}">${meta.allowlist} (\"Whitelist\") in porn-domains</option>`);
+                    $listSelect.append(`<option value="${baseUrl}${meta.allowlist.name}">${meta.allowlist.name} (\"Whitelist\") in porn-domains</option>`);
                 }
                 $listSelect.append('</optgroup>');
             })
