@@ -32,10 +32,11 @@
                 <div class="col-lg-6 text-lg-end text-center mt-3 mt-lg-0">
                     <div class="d-inline-flex align-items-center gap-3">
                         <div class="form-check form-switch d-inline-flex align-items-center">
-                            <input class="form-check-input" type="checkbox" id="darkModeToggle" style="cursor:pointer">
-                            <label class="form-check-label ms-2" for="darkModeToggle" style="cursor:pointer">
-                                <i class="bi bi-moon-stars-fill text-warning"></i> Dark Mode
-                            </label>
+                            <select class="form-select form-select-sm" id="darkModeToggle" style="width: auto; cursor: pointer;">
+                                <option value="auto" selected>Auto-Detect</option>
+                                <option value="enabled">Dark Mode</option>
+                                <option value="disabled">Light Mode</option>
+                            </select>
                         </div>
                         <!-- Off-canvas About Trigger Button -->
                         <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas"

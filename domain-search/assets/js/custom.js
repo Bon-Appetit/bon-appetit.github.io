@@ -38,18 +38,16 @@ $(document).ready(function () {
 
     // Initializes Dark Mode based on user preference or system preference
     function initializeDarkMode() {
-        const savedPreference = localStorage.getItem('darkMode');
+        const savedPreference = localStorage.getItem('darkMode') || 'auto';
+        $darkModeToggle.val(savedPreference);
 
         if (savedPreference === 'enabled') {
             toggleDarkMode(true);
-            $darkModeToggle.prop('checked', true);
         } else if (savedPreference === 'disabled') {
             toggleDarkMode(false);
-            $darkModeToggle.prop('checked', false);
         } else {
             const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
             toggleDarkMode(prefersDarkMode);
-            $darkModeToggle.prop('checked', prefersDarkMode);
         }
     }
 
@@ -92,9 +90,17 @@ $(document).ready(function () {
 
     // Handles dark mode toggle button state and updates preferences in localStorage
     function handleDarkModeToggle() {
-        const isDarkMode = $(this).is(':checked');
-        toggleDarkMode(isDarkMode);
-        localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+        const mode = $darkModeToggle.val();
+        localStorage.setItem('darkMode', mode);
+
+        if (mode === 'enabled') {
+            toggleDarkMode(true);
+        } else if (mode === 'disabled') {
+            toggleDarkMode(false);
+        } else {
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            toggleDarkMode(prefersDarkMode);
+        }
     }
 
     // Toggle between single and multi search input
