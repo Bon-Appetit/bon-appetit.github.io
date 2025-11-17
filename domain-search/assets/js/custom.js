@@ -17,6 +17,7 @@ $(document).ready(function () {
     const $highlightCheckbox = $('#highlightResults'); // Checkbox for enabling highlight tags
     const $viewSelect = $('#viewSelect'); // View type selector (cards or list)
     const $sortSelect = $('#sortSelect'); // Add sort selector
+    const $exactMatch = $('#exactMatch'); // Exact match toggle
 
     // Initialization
     initializeTooltips();
@@ -67,6 +68,9 @@ $(document).ready(function () {
 
         // Multi search toggle
         $multiSearchToggle.on('change', handleMultiSearchToggle);
+
+        // Highlight toggle when Exact Match is enabled
+        $exactMatch.on('change', handleExactMatchToggle);
     }
 
     /*************************
@@ -135,6 +139,21 @@ $(document).ready(function () {
         performSearch(listUrl, searchPhrases);
     }
 
+    // Disable highlight checkbox when Exact Match is enabled
+    function handleExactMatchToggle() {
+        if ($exactMatch.is(':checked')) {
+            // Remember whether highlight was previously enabled
+            $highlightCheckbox.data('was-checked', $highlightCheckbox.is(':checked'));
+            $highlightCheckbox.prop('checked', false).prop('disabled', true);
+        } else {
+            // Only re-enable if it was previously enabled
+            if ($highlightCheckbox.data('was-checked')) {
+                $highlightCheckbox.prop('checked', true);
+            }
+            $highlightCheckbox.prop('disabled', false);
+        }
+    }
+
     /*************************
      * Core Functionalities
      *************************/
@@ -187,6 +206,7 @@ $(document).ready(function () {
     function getMatches(data, searchPhrases, highlightEnabled) {
         const lines = data.split('\n');
         const useRegex = $useRegex.is(':checked');
+        const exactMatch = $exactMatch.is(':checked');
         if (!Array.isArray(searchPhrases)) searchPhrases = [searchPhrases];
 
         if (useRegex) {
@@ -225,11 +245,22 @@ $(document).ready(function () {
                     let matchCount = 0;
                     let highlighted = line;
                     searchPhrases.forEach(p => {
-                        if (line.toLowerCase().includes(p.toLowerCase())) {
-                            matchCount++;
-                            if (highlightEnabled) {
-                                // Highlight all occurrences
-                                highlighted = highlighted.replace(new RegExp(p, 'gi'), '<mark>$&</mark>');
+                        if (exactMatch) {
+                            // Exact match (case-insensitive, trim whitespace)
+                            if (line.trim().toLowerCase() === p.trim().toLowerCase()) {
+                                matchCount++;
+                                if (highlightEnabled) {
+                                    highlighted = `<mark>${line}</mark>`;
+                                }
+                            }
+                        } else {
+                            // Partial match
+                            if (line.toLowerCase().includes(p.toLowerCase())) {
+                                matchCount++;
+                                if (highlightEnabled) {
+                                    // Highlight all occurrences
+                                    highlighted = highlighted.replace(new RegExp(p, 'gi'), '<mark>$&</mark>');
+                                }
                             }
                         }
                     });
