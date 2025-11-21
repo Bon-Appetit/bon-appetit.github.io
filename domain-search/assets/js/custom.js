@@ -139,18 +139,31 @@ $(document).ready(function () {
         performSearch(listUrl, searchPhrases);
     }
 
-    // Disable highlight checkbox when Exact Match is enabled
+    // Disable highlight and regexp checkbox when Exact Match is enabled
     function handleExactMatchToggle() {
         if ($exactMatch.is(':checked')) {
             // Remember whether highlight was previously enabled
             $highlightCheckbox.data('was-checked', $highlightCheckbox.is(':checked'));
+
+            // Remember whether regexp was previously enabled
+            $useRegex.data('was-checked', $useRegex.is(':checked'));
+
+            // Disable and uncheck highlight and regexp options
             $highlightCheckbox.prop('checked', false).prop('disabled', true);
+            $useRegex.prop('checked', false).prop('disabled', true);
         } else {
-            // Only re-enable if it was previously enabled
+            // Re-enable highlight option if it was previously checked
             if ($highlightCheckbox.data('was-checked')) {
                 $highlightCheckbox.prop('checked', true);
             }
+
+            // Re-enable regexp option if it was previously checked
+            if ($useRegex.data('was-checked')) {
+                $useRegex.prop('checked', true);
+            }
+
             $highlightCheckbox.prop('disabled', false);
+            $useRegex.prop('disabled', false);
         }
     }
 
