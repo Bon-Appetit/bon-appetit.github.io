@@ -9,6 +9,7 @@ $(document).ready(function () {
     const $resultsInfo = $('#resultsInfo'); // Results info container
     const $resultsContainer = $('#resultsContainer'); // Results container for displaying search results
     const $listSelect = $('#listSelect'); // List select dropdown
+    const $customListUrl = $('#customListUrl'); // Custom list URL input
     const $multiSearchToggle = $('#multiSearchToggle'); // Multi search toggle switch
     const $multiSearchGroup = $('#multiSearchGroup'); // Multi search input group
     const $multiSearchInput = $('#multiSearchInput'); // Multi search input field
@@ -71,6 +72,9 @@ $(document).ready(function () {
 
         // Highlight toggle when Exact Match is enabled
         $exactMatch.on('change', handleExactMatchToggle);
+
+        // List select change to toggle custom URL input
+        $listSelect.on('change', handleListSelectChange);
     }
 
     /*************************
@@ -118,9 +122,31 @@ $(document).ready(function () {
         }
     }
 
+    // Handle list select change - show/hide custom URL input
+    function handleListSelectChange() {
+        const selectedValue = $listSelect.val();
+        if (selectedValue === 'custom') {
+            $customListUrl.removeClass('d-none').focus();
+        } else {
+            $customListUrl.addClass('d-none');
+        }
+    }
+
     // Handles search button click, initiates search if a phrase is provided
     function handleSearchClick() {
-        const listUrl = $('#listSelect').val();
+        let listUrl = $listSelect.val();
+
+        if (listUrl === 'custom') {
+            listUrl = $customListUrl.val().trim();
+            if (!listUrl) {
+                showToast('<i class="bi bi-exclamation-circle-fill"></i> Please enter a URL for the custom list.', 'text-bg-warning');
+                return;
+            }
+        } else if (!listUrl) {
+            showToast('<i class="bi bi-exclamation-circle-fill"></i> Please select a list.', 'text-bg-warning');
+            return;
+        }
+
         let searchPhrases = [];
         if ($multiSearchToggle.is(':checked')) {
             // Multi search mode
@@ -136,7 +162,7 @@ $(document).ready(function () {
             return;
         }
 
-        performSearch(listUrl, searchPhrases);
+        performSearch(listUrl);
     }
 
     // Disable highlight and regexp checkbox when Exact Match is enabled
@@ -190,7 +216,7 @@ $(document).ready(function () {
     }
 
     // Handles performing the search by making an AJAX call
-    function performSearch(listUrl, searchPhrases) {
+    function performSearch(listUrl) {
         setLoadingState(true);
         $resultsInfo.empty();
         $resultsContainer.empty();
@@ -201,6 +227,13 @@ $(document).ready(function () {
         })
             .done(function (data) {
                 const highlightEnabled = $highlightCheckbox.is(':checked');
+                let searchPhrases = [];
+                if ($multiSearchToggle.is(':checked')) {
+                    searchPhrases = $multiSearchInput.val().split('\n').map(s => s.trim()).filter(Boolean);
+                } else {
+                    const single = $searchInput.val().trim();
+                    if (single) searchPhrases = [single];
+                }
                 let matches = getMatches(data, searchPhrases, highlightEnabled);
                 displayResults(matches);
             })
@@ -396,12 +429,13 @@ $(document).ready(function () {
                 $listSelect.empty();
                 $listSelect.append('<optgroup label="Bon-Appetit/porn-domains/">');
                 if (meta.blocklist) {
-                    $listSelect.append(`<option value="${baseUrl}${meta.blocklist.name}" selected>${meta.blocklist.name} (\"Blacklist\") in porn-domains</option>`);
+                    $listSelect.append(`<option value="${baseUrl}${meta.blocklist.name}" selected>${meta.blocklist.name} ("Blacklist") in porn-domains</option>`);
                 }
                 if (meta.allowlist) {
-                    $listSelect.append(`<option value="${baseUrl}${meta.allowlist.name}">${meta.allowlist.name} (\"Whitelist\") in porn-domains</option>`);
+                    $listSelect.append(`<option value="${baseUrl}${meta.allowlist.name}">${meta.allowlist.name} ("Allowlist") in porn-domains</option>`);
                 }
                 $listSelect.append('</optgroup>');
+                $listSelect.append('<optgroup label="Custom:"><option value="custom">Custom List (enter URL)</option></optgroup>');
             })
             .catch(() => {
                 $listSelect.empty();

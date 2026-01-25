@@ -32,7 +32,8 @@
                 <div class="col-lg-6 text-lg-end text-center mt-3 mt-lg-0">
                     <div class="d-inline-flex align-items-center gap-3">
                         <div class="form-check form-switch d-inline-flex align-items-center">
-                            <select class="form-select form-select-sm" id="darkModeToggle" style="width: auto; cursor: pointer;">
+                            <select class="form-select form-select-sm" id="darkModeToggle"
+                                style="width: auto; cursor: pointer;">
                                 <option value="auto" selected>Auto-Detect</option>
                                 <option value="enabled">Dark Mode</option>
                                 <option value="disabled">Light Mode</option>
@@ -58,7 +59,9 @@
                     <!-- Header Information for Search Box -->
                     <header class="mb-4">
                         <h2>Domain Search</h2>
-                        <p class="lead">Use this form to search certain lists for a specific domain or any phrase, including regular expressions. You can also search for multiple phrases or domains at once (bulk search).</p>
+                        <p class="lead">Use this form to search certain lists for a specific domain or any phrase,
+                            including regular expressions. You can also search for multiple phrases or domains at once
+                            (bulk search).</p>
                     </header>
 
                     <div class="row">
@@ -68,11 +71,13 @@
                                 <label for="listSelect" class="form-label fw-bold">
                                     <i class="bi bi-menu-button text-info"></i> List
                                     <i class="bi bi-info-circle text-primary" data-bs-toggle="popover"
-                                    data-bs-content="Select a list to search for domains."></i>
+                                        data-bs-content="Select a list to search for domains."></i>
                                 </label>
                                 <select id="listSelect" class="form-select form-select-lg">
-                                    <option value="" disabled selected>Loadings lists...</option>
+                                    <option value="" disabled selected>Loading lists...</option>
                                 </select>
+                                <input type="url" id="customListUrl" class="form-control form-control-lg mt-2 d-none"
+                                    placeholder="Enter the URL to your custom domain list">
                             </div>
                         </div>
 
@@ -95,7 +100,8 @@
                                 </div>
                                 <!-- Multi Search Toggle -->
                                 <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" id="multiSearchToggle" role="switch">
+                                    <input class="form-check-input" type="checkbox" id="multiSearchToggle"
+                                        role="switch">
                                     <label class="form-check-label" for="multiSearchToggle">
                                         <i class="bi bi-list-ul text-info"></i> Multi Search (one per line)
                                     </label>
@@ -120,16 +126,19 @@
                                             <!-- Regex Option -->
                                             <div class="mb-3">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="useRegex" role="switch">
+                                                    <input class="form-check-input" type="checkbox" id="useRegex"
+                                                        role="switch">
                                                     <label class="form-check-label" for="useRegex">
-                                                        <i class="bi bi-regex text-primary"></i> Enable regular expression
+                                                        <i class="bi bi-regex text-primary"></i> Enable regular
+                                                        expression
                                                     </label>
                                                 </div>
                                             </div>
                                             <!-- Exact Match Option -->
                                             <div class="mb-3">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="exactMatch" role="switch">
+                                                    <input class="form-check-input" type="checkbox" id="exactMatch"
+                                                        role="switch">
                                                     <label class="form-check-label" for="exactMatch">
                                                         <i class="bi bi-type text-primary"></i> Exact match only
                                                     </label>
@@ -354,7 +363,12 @@
                         data-bs-parent="#accordionInfo">
                         <div class="accordion-body">
                             <ul>
-                                <li><a target="_blank" href="https://github.com/Bon-Appetit/porn-domains">Bon-Appetit/porn-domains</a> by <a target="_blank" href="https://github.com/CodeAlDente">CodeAlDente</a> is licensed under <a target="_blank" href="https://github.com/Bon-Appetit/porn-domains/blob/main/LICENSE">CC BY-SA 4.0</a>.</li>
+                                <li><a target="_blank"
+                                        href="https://github.com/Bon-Appetit/porn-domains">Bon-Appetit/porn-domains</a>
+                                    by <a target="_blank" href="https://github.com/CodeAlDente">CodeAlDente</a> is
+                                    licensed under <a target="_blank"
+                                        href="https://github.com/Bon-Appetit/porn-domains/blob/main/LICENSE">CC BY-SA
+                                        4.0</a>.</li>
                             </ul>
                         </div>
                     </div>
