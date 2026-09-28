@@ -4,6 +4,7 @@ $(document).ready(function () {
     const $toTop = $('#toTop'); // "To Top" button
     const $darkModeToggle = $('#darkModeToggle');  // Dark mode toggle switch
     const $searchBtn = $('#searchBtn'); // Search button
+    const $permalinkBtn = $('#permalinkBtn'); // Copy permalink button
     const $loadingSpinner = $('#loadingSpinner'); // Loading spinner element
     const $results = $('#results'); // Results container
     const $resultsInfo = $('#resultsInfo'); // Results info container
@@ -66,6 +67,7 @@ $(document).ready(function () {
 
         // Search button click event
         $searchBtn.on('click', handleSearchClick);
+        $permalinkBtn.on('click', handlePermalinkClick);
 
         // Multi search toggle
         $multiSearchToggle.on('change', handleMultiSearchToggle);
@@ -163,6 +165,81 @@ $(document).ready(function () {
         }
 
         performSearch(listUrl);
+    }
+
+    // Copies a URL that restores the current search and its display options
+    function handlePermalinkClick() {
+        let listUrl = $listSelect.val();
+        if (listUrl === 'custom') {
+            listUrl = $customListUrl.val().trim();
+            if (!listUrl) {
+                showToast('<i class="bi bi-exclamation-circle-fill"></i> Please enter a URL for the custom list.', 'text-bg-warning');
+                return;
+            }
+        } else if (!listUrl) {
+            showToast('<i class="bi bi-exclamation-circle-fill"></i> Please select a list.', 'text-bg-warning');
+            return;
+        }
+
+        const searchPhrases = $multiSearchToggle.is(':checked')
+            ? $multiSearchInput.val().split('\n').map(s => s.trim()).filter(Boolean)
+            : [$searchInput.val().trim()].filter(Boolean);
+        if (!searchPhrases.length) {
+            showToast('<i class="bi bi-exclamation-circle-fill"></i> Please enter a search phrase.', 'text-bg-warning');
+            return;
+        }
+
+        const permalink = new URL(window.location.href);
+        permalink.search = '';
+        permalink.searchParams.set('list', listUrl);
+        permalink.searchParams.set('q', searchPhrases.join('\n'));
+        permalink.searchParams.set('multi', String($multiSearchToggle.is(':checked')));
+        permalink.searchParams.set('regex', String($useRegex.is(':checked')));
+        permalink.searchParams.set('exact', String($exactMatch.is(':checked')));
+        permalink.searchParams.set('highlight', String($highlightCheckbox.is(':checked')));
+        permalink.searchParams.set('view', $viewSelect.val());
+        permalink.searchParams.set('sort', $sortSelect.val());
+
+        navigator.clipboard.writeText(permalink.href)
+            .then(() => showToast('<i class="bi bi-link-45deg"></i> Permalink copied to clipboard.', 'text-bg-success'))
+            .catch(() => showToast('Could not copy the permalink. Check clipboard permissions.', 'text-bg-danger'));
+    }
+
+    // Restores search settings encoded in the page URL
+    function restorePermalink() {
+        const params = new URLSearchParams(window.location.search);
+        const listUrl = params.get('list');
+        const query = params.get('q');
+        if (!listUrl || query === null) return;
+
+        const selectedList = $listSelect.find('option').filter(function () {
+            return this.value === listUrl;
+        }).length > 0;
+        if (selectedList) {
+            $listSelect.val(listUrl);
+        } else {
+            if (!$listSelect.find('option[value="custom"]').length) {
+                $listSelect.append('<option value="custom">Custom List (enter URL)</option>');
+            }
+            $listSelect.val('custom');
+            $customListUrl.val(listUrl);
+            $customListUrl.removeClass('d-none');
+        }
+
+        const multiSearch = params.get('multi') === 'true';
+        $multiSearchToggle.prop('checked', multiSearch);
+        if (multiSearch) {
+            $multiSearchInput.val(query);
+        } else {
+            $searchInput.val(query);
+        }
+        handleMultiSearchToggle();
+        $useRegex.prop('checked', params.get('regex') === 'true');
+        $highlightCheckbox.prop('checked', params.get('highlight') !== 'false');
+        $exactMatch.prop('checked', params.get('exact') === 'true');
+        handleExactMatchToggle();
+        $viewSelect.val(params.get('view') === 'list' ? 'list' : 'cards');
+        $sortSelect.val(params.get('sort') === 'alphabetical' ? 'alphabetical' : 'best');
     }
 
     // Disable highlight and regexp checkbox when Exact Match is enabled
@@ -436,10 +513,12 @@ $(document).ready(function () {
                 }
                 $listSelect.append('</optgroup>');
                 $listSelect.append('<optgroup label="Custom:"><option value="custom">Custom List (enter URL)</option></optgroup>');
+                restorePermalink();
             })
             .catch(() => {
                 $listSelect.empty();
                 $listSelect.append('<option value="" disabled selected>Could not load lists</option>');
+                restorePermalink();
             });
     }
 });
