@@ -4,6 +4,19 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.theme-mode-switch {
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.25rem;
+    padding: 0;
+}
+
+.theme-mode-switch i {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
 /* Loading State Styles */
 .loading-active {
     /* Disable pointer events and reduce opacity to indicate a loading state */

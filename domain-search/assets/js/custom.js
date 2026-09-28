@@ -41,17 +41,11 @@ $(document).ready(function () {
 
     // Initializes Dark Mode based on user preference or system preference
     function initializeDarkMode() {
-        const savedPreference = localStorage.getItem('darkMode') || 'auto';
-        $darkModeToggle.val(savedPreference);
-
-        if (savedPreference === 'enabled') {
-            toggleDarkMode(true);
-        } else if (savedPreference === 'disabled') {
-            toggleDarkMode(false);
-        } else {
-            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            toggleDarkMode(prefersDarkMode);
-        }
+        let savedPreference = localStorage.getItem('darkMode') || 'auto';
+        if (savedPreference === 'enabled') savedPreference = 'dark';
+        if (savedPreference === 'disabled') savedPreference = 'light';
+        if (!['auto', 'light', 'dark'].includes(savedPreference)) savedPreference = 'auto';
+        setThemeMode(savedPreference);
     }
 
     // Adds core event listeners for buttons and user actions
@@ -62,8 +56,8 @@ $(document).ready(function () {
         // Scroll to top of the page when the 'To Top' button is clicked
         $toTop.click(scrollToTop);
 
-        // Dark mode toggle switch
-        $darkModeToggle.change(handleDarkModeToggle);
+        // Cycle between automatic, light, and dark themes
+        $darkModeToggle.on('click', handleDarkModeToggle);
 
         // Search button click event
         $searchBtn.on('click', handleSearchClick);
@@ -100,17 +94,29 @@ $(document).ready(function () {
 
     // Handles dark mode toggle button state and updates preferences in localStorage
     function handleDarkModeToggle() {
-        const mode = $darkModeToggle.val();
+        const modes = ['auto', 'light', 'dark'];
+        const currentMode = $darkModeToggle.attr('data-mode');
+        const nextMode = modes[(modes.indexOf(currentMode) + 1) % modes.length];
+        setThemeMode(nextMode);
+    }
+
+    function setThemeMode(mode) {
+        const modeDetails = {
+            auto: { label: 'Auto', icon: 'bi-circle-half' },
+            light: { label: 'Light', icon: 'bi-sun-fill' },
+            dark: { label: 'Dark', icon: 'bi-moon-fill' }
+        };
+        const modes = ['auto', 'light', 'dark'];
+        const nextMode = modes[(modes.indexOf(mode) + 1) % modes.length];
+        const details = modeDetails[mode];
+        $darkModeToggle.attr('data-mode', mode)
+            .attr('aria-label', `${details.label} theme. Activate to switch to ${modeDetails[nextMode].label} theme.`)
+            .attr('title', `${details.label} theme`)
+            .find('i').attr('class', `bi ${details.icon}`);
         localStorage.setItem('darkMode', mode);
 
-        if (mode === 'enabled') {
-            toggleDarkMode(true);
-        } else if (mode === 'disabled') {
-            toggleDarkMode(false);
-        } else {
-            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            toggleDarkMode(prefersDarkMode);
-        }
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        toggleDarkMode(mode === 'dark' || (mode === 'auto' && prefersDarkMode));
     }
 
     // Toggle between single and multi search input
@@ -495,7 +501,6 @@ $(document).ready(function () {
     // Dynamically load blocklist/allowlist filenames from meta.json and populate the listSelect dropdown
     function loadMetaData() {
         const metaUrl = 'https://raw.githubusercontent.com/Bon-Appetit/porn-domains/refs/heads/main/meta.json';
-        const baseUrl = 'https://raw.githubusercontent.com/Bon-Appetit/porn-domains/refs/heads/main/';
 
         fetch(metaUrl)
             .then(response => {
@@ -506,10 +511,17 @@ $(document).ready(function () {
                 $listSelect.empty();
                 $listSelect.append('<optgroup label="Bon-Appetit/porn-domains/">');
                 if (meta.blocklist) {
-                    $listSelect.append(`<option value="${baseUrl}${meta.blocklist.name}" selected>${meta.blocklist.name} ("Blacklist") in porn-domains</option>`);
+                    $listSelect.append($('<option>', {
+                        value: meta.blocklist.raw_url,
+                        text: `${meta.blocklist.name} ("Blacklist") in porn-domains`,
+                        selected: true
+                    }));
                 }
                 if (meta.allowlist) {
-                    $listSelect.append(`<option value="${baseUrl}${meta.allowlist.name}">${meta.allowlist.name} ("Allowlist") in porn-domains</option>`);
+                    $listSelect.append($('<option>', {
+                        value: meta.allowlist.raw_url,
+                        text: `${meta.allowlist.name} ("Allowlist") in porn-domains`
+                    }));
                 }
                 $listSelect.append('</optgroup>');
                 $listSelect.append('<optgroup label="Custom:"><option value="custom">Custom List (enter URL)</option></optgroup>');
