@@ -1,0 +1,404 @@
+/* Shared colors keep the page and its components in sync. */
+:root {
+  color-scheme: light;
+  --page-bg: #f5f7f8;
+  --surface: #fff;
+  --surface-soft: #f8fafb;
+  --border: #e3e8eb;
+  --ink: #182126;
+  --muted: #66747c;
+  --accent: #16805d;
+  --shadow: 0 12px 36px rgba(25, 42, 50, 0.07);
+  --header-scrolled-bg: rgba(255, 255, 255, 0.84);
+}
+
+/* Bootstrap sets this attribute when the user picks a dark theme. */
+html[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #111719;
+  --surface: #1a2225;
+  --surface-soft: #202a2e;
+  --border: #344146;
+  --ink: #edf3f2;
+  --muted: #abb8ba;
+  --accent: #55c99b;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+  --header-scrolled-bg: rgba(26, 34, 37, 0.84);
+}
+
+/* Page frame and sticky header. */
+body {
+  background: var(--page-bg);
+  color: var(--ink);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  padding: 0.75rem 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  transition:
+    background-color 0.2s ease,
+    backdrop-filter 0.2s ease;
+}
+
+.app-header.is-scrolled {
+  background: var(--header-scrolled-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 750;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+/* Keep the binoculars just under the wordmark in size. */
+.app-brand i {
+  font-size: 1.25rem;
+}
+
+.project-links {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project-links .nav-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  font-size: 0.85rem;
+  gap: 0.25rem;
+  width: auto;
+  white-space: nowrap;
+  margin-right: 0.5rem;
+}
+
+.page-main {
+  width: 60%;
+  max-width: none;
+  margin-top: clamp(1.5rem, 5vw, 3.5rem);
+  margin-bottom: 4rem;
+}
+
+/* Main search surface and its advanced-options panel. */
+.search-box,
+.saved-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+}
+
+.advanced-panel {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+/* Give results a little breathing room on wider screens. */
+@media (min-width: 576px) {
+  #results {
+    width: 95%;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+.form-control,
+.form-select,
+.card,
+.list-group-item,
+.accordion-item {
+  background-color: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+/* Keep form surfaces readable in both themes. */
+.form-control::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+#resultsInfo {
+  margin-bottom: 1rem;
+}
+#resultsInfo p {
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Results can switch between a responsive card grid and a compact list. */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 0.75rem;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.result-card,
+.result-row,
+.saved-item {
+  min-width: 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.result-row,
+.result-card-inner,
+.saved-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.result-list .result-row {
+  padding: 0.7rem 0.9rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.result-list-item + .result-list-item {
+  border-top: 1px solid var(--border);
+}
+
+.result-list-item:nth-child(even) .result-row {
+  background: var(--surface-soft);
+}
+
+/* Keep long domains readable without letting them push buttons off-screen. */
+.result-value,
+.saved-item-title {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.copy-btn {
+  flex: 0 0 auto;
+  min-height: 40px;
+}
+
+.saved-item {
+  background: var(--surface-soft);
+  border-radius: 0.5rem;
+}
+.saved-item + .saved-item {
+  margin-top: 0.75rem;
+}
+.saved-item-meta {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* The saved-search drawer stays usable on narrow screens. */
+#offcanvasSaved {
+  --bs-offcanvas-width: min(30rem, 92vw);
+}
+
+.saved-actions.has-disabled-actions {
+  cursor: not-allowed;
+}
+
+/* These controls keep a steady footprint as their content changes. */
+.theme-mode-switch {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+}
+.theme-mode-switch i {
+  font-size: 1.2rem;
+}
+
+.loading-active {
+  cursor: progress;
+}
+
+/* A light overlay makes it clear when a list is still being fetched. */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+#toTop {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1035;
+  display: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+}
+
+#toastContainer {
+  z-index: 1100;
+  width: min(100%, 26rem);
+}
+
+/* Toast colors follow the message status while the rest follows the theme. */
+.app-toast {
+  --toast-accent: #0d6efd;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-left: 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.app-toast.toast-status-success {
+  --toast-accent: #198754;
+}
+.app-toast.toast-status-warning {
+  --toast-accent: #ffc107;
+}
+.app-toast.toast-status-danger {
+  --toast-accent: #dc3545;
+}
+.app-toast.toast-status-info {
+  --toast-accent: #0dcaf0;
+}
+
+.app-toast .toast-header {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-bottom-color: var(--border);
+}
+
+.app-toast .toast-status-icon {
+  color: var(--toast-accent);
+}
+.app-toast .toast-body {
+  overflow-wrap: anywhere;
+}
+
+/* The small bar tracks how long each toast stays on screen. */
+.toast-progress {
+  height: 3px;
+  background: var(--surface-soft);
+}
+
+.toast-progress-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--muted);
+  transform-origin: left;
+  animation: toast-countdown var(--toast-duration, 3500ms) linear forwards;
+}
+
+@keyframes toast-countdown {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+mark {
+  padding: 0.05em 0.15em;
+  border-radius: 0.2em;
+}
+
+/* On phones, use the full width and let result controls wrap naturally. */
+@media (max-width: 575.98px) {
+  .page-main {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .app-brand {
+    font-size: 1.25rem;
+  }
+  .app-brand i {
+    font-size: 1.1rem;
+  }
+  .project-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .project-links .nav-link {
+    width: 100%;
+  }
+  .result-row,
+  .result-card-inner {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-progress-fill {
+    animation: none;
+  }
+}
+
+/* Respect reduced-motion preferences across the rest of the page too. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* About drawer: keep the footer visible while the FAQ and support content scrolls. */
+#offcanvasAbout {
+  --bs-offcanvas-width: min(34rem, 92vw);
+}
+
+#offcanvasAbout .about-offcanvas-body {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.about-section-heading {
+  margin-bottom: 0.65rem;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.about-offcanvas-footer {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
