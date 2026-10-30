@@ -421,7 +421,15 @@ mark {
   justify-content: center;
   padding: 0.25rem 0.5rem;
   line-height: 1.5;
+  gap: 0.35rem;
   white-space: nowrap;
+}
+
+#resultsActions > .btn,
+#resultsActions .dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .dns-lookup-btn:disabled {

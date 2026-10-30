@@ -550,14 +550,14 @@ $(function () {
         copy.type = "button";
         copy.className = "btn btn-outline-primary btn-sm copy-btn";
         copy.innerHTML =
-          '<i class="bi bi-clipboard" aria-hidden="true"></i> Copy';
+          '<i class="bi bi-clipboard" aria-hidden="true"></i><span>Copy</span>';
 
         const dns = document.createElement("button");
         dns.type = "button";
         dns.className = "btn btn-outline-secondary btn-sm dns-lookup-btn";
         dns.dataset.dnsDomain = match.value;
         dns.innerHTML =
-          '<i class="bi bi-globe2" aria-hidden="true"></i> DNS Lookup';
+          '<i class="bi bi-globe2" aria-hidden="true"></i><span>DNS Lookup</span>';
         const normalizedDomain = normalizeDnsDomain(match.value);
         if (!normalizedDomain) {
           dns.disabled = true;
@@ -898,7 +898,12 @@ $(function () {
     button.type = "button";
     button.className = `btn btn-sm ${classes}`;
     button.dataset.action = action;
-    button.textContent = label;
+    const icon = document.createElement("i");
+    icon.className = action === "save" ? "bi bi-bookmark-plus" : "bi bi-download";
+    icon.setAttribute("aria-hidden", "true");
+    const text = document.createElement("span");
+    text.textContent = label;
+    button.append(icon, text);
     $resultsActions.append(button);
   }
 
@@ -911,7 +916,12 @@ $(function () {
     toggle.className = "btn btn-sm btn-outline-secondary dropdown-toggle";
     toggle.dataset.bsToggle = "dropdown";
     toggle.setAttribute("aria-expanded", "false");
-    toggle.textContent = "Export as";
+    const icon = document.createElement("i");
+    icon.className = "bi bi-download";
+    icon.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.textContent = "Export as";
+    toggle.append(icon, label);
 
     const menu = document.createElement("ul");
     menu.className = "dropdown-menu";
@@ -940,9 +950,17 @@ $(function () {
       .attr("aria-hidden", String(!loading));
     $("body").toggleClass("loading-active", loading);
     $results.attr("aria-busy", String(loading));
-    $("#searchBtn")
-      .prop("disabled", loading)
-      .text(loading ? "Searching…" : "Search");
+    const searchButton = document.getElementById("searchBtn");
+    searchButton.disabled = loading;
+    searchButton.replaceChildren();
+    if (!loading) {
+      const icon = document.createElement("i");
+      icon.className = "bi bi-search";
+      icon.setAttribute("aria-hidden", "true");
+      searchButton.append(icon, document.createTextNode(" Search"));
+    } else {
+      searchButton.textContent = "Searching…";
+    }
   }
 
   async function copyPermalink() {
