@@ -244,6 +244,7 @@
         <div id="resultsInfo"></div>
         <div id="resultsActions" class="d-flex flex-wrap gap-2 mb-3"></div>
         <div id="resultsContainer"></div>
+
       </section>
     </main>
 
@@ -430,6 +431,24 @@
                 </div>
               </div>
             </div>
+            <div class="accordion-item">
+              <h4 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#aboutDns" aria-expanded="false" aria-controls="aboutDns">
+                  How do DNS lookups work, and what data is shared?
+                </button>
+              </h4>
+              <div id="aboutDns" class="accordion-collapse collapse" data-bs-parent="#accordionInfo">
+                <div class="accordion-body">
+                  DNS lookups are optional and only run when you select “DNS Lookup” on a result. Your browser sends DNS-over-HTTPS requests directly to Cloudflare
+                  (<a href="https://cloudflare-dns.com/dns-query" target="_blank" rel="noopener noreferrer">cloudflare-dns.com</a>)
+                  to retrieve A, AAAA, MX and NS records. As part of the connection, Cloudflare can receive your IP address, the requested domain name and the DNS record types.
+                  Ordinary list matching happens in your browser; DNS lookups are a separate request to Cloudflare.
+                  See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>
+                  and its <a href="https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/" target="_blank" rel="noopener noreferrer">public DNS resolver privacy documentation</a>.
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -455,6 +474,39 @@
           </div>
         </div>
       </footer>
+    </div>
+
+
+    <!-- DNS lookup modal. DNS responses are rendered as text, never trusted HTML. -->
+    <div
+      class="modal fade"
+      id="dnsModal"
+      tabindex="-1"
+      aria-labelledby="dnsModalTitle"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+      data-bs-keyboard="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content dns-modal-content">
+          <div class="modal-header">
+            <div class="dns-modal-heading">
+              <h2 class="modal-title h5 mb-1" id="dnsModalTitle">DNS records</h2>
+              <small class="text-body-secondary">DNS over HTTPS via Cloudflare</small>
+            </div>
+            <button type="button" class="btn-close dns-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="dnsModalBody" aria-live="polite">
+            <div class="text-center text-body-secondary py-4">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Preparing DNS lookup…
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Shared page-level helpers: scroll-to-top, loading state, and toast messages. -->

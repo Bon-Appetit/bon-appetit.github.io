@@ -11,6 +11,15 @@ $(function () {
   const MAX_SEARCH_TERMS = 100;
   const MAX_TERM_LENGTH = 256;
 
+  // DNS lookups are deliberately user-triggered and throttled per domain.
+  const DNS_RECORD_TYPES = ["A", "AAAA", "MX", "NS"];
+  const DNS_COOLDOWN_MS = 3000;
+  const DNS_CACHE_TTL_MS = 60000;
+  const DNS_TIMEOUT_MS = 8000;
+  const dnsCooldownUntil = new Map();
+  const dnsInFlight = new Set();
+  const dnsCache = new Map();
+
   const $list = $("#listSelect");
   const $customUrl = $("#customListUrl");
   const $single = $("#searchInput");
@@ -37,6 +46,11 @@ $(function () {
   function bindEvents() {
     $("#darkModeToggle").on("click", cycleTheme);
     $("#searchBtn").on("click", runSearch);
+
+    $resultsContainer.on("click", ".dns-lookup-btn", function () {
+      const domain = this.dataset.dnsDomain;
+      if (domain) openDnsModal(domain);
+    });
     $("#permalinkBtn").on("click", copyPermalink);
     $("#multiSearchToggle").on("change", updateSearchMode);
     $("#listSelect").on("change", updateCustomList);
@@ -529,13 +543,33 @@ $(function () {
           value.textContent = match.value;
         }
 
+        const actions = document.createElement("div");
+        actions.className = "result-actions";
+
         const copy = document.createElement("button");
         copy.type = "button";
         copy.className = "btn btn-outline-primary btn-sm copy-btn";
         copy.innerHTML =
           '<i class="bi bi-clipboard" aria-hidden="true"></i> Copy';
 
-        content.append(value, copy);
+        const dns = document.createElement("button");
+        dns.type = "button";
+        dns.className = "btn btn-outline-secondary btn-sm dns-lookup-btn";
+        dns.dataset.dnsDomain = match.value;
+        dns.innerHTML =
+          '<i class="bi bi-globe2" aria-hidden="true"></i> DNS Lookup';
+        const normalizedDomain = normalizeDnsDomain(match.value);
+        if (!normalizedDomain) {
+          dns.disabled = true;
+          dns.title = "DNS lookup is available for valid domain names only.";
+          dns.setAttribute("aria-label", "DNS lookup unavailable for this value");
+        } else {
+          dns.dataset.dnsDomain = normalizedDomain;
+          syncDnsButtonState(dns, normalizedDomain);
+        }
+
+        actions.append(copy, dns);
+        content.append(value, actions);
         item.append(content);
         $resultsContainer[0].append(item);
       });
@@ -559,6 +593,250 @@ $(function () {
     };
 
     renderBatch();
+  }
+
+  // Accept DNS hostnames only; search phrases, URLs, paths and wildcard patterns are rejected.
+  function normalizeDnsDomain(value) {
+    if (typeof value !== "string") return null;
+    const candidate = value.trim().replace(/\.$/, "").toLowerCase();
+    if (!candidate || candidate.length > 253 || candidate.includes("://") ||
+        candidate.includes("/") || candidate.includes(":") || /\s/.test(candidate)) {
+      return null;
+    }
+    try {
+      const hostname = new URL(`https://${candidate}`).hostname;
+      if (hostname !== candidate || hostname.length > 253) return null;
+      const labels = hostname.split(".");
+      if (labels.length < 2 || labels.some((label) =>
+        !label || label.length > 63 ||
+        !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)
+      )) return null;
+      return hostname;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function syncDnsButtonState(button, domain) {
+    const remaining = (dnsCooldownUntil.get(domain) || 0) - Date.now();
+    const disabled = dnsInFlight.has(domain) || remaining > 0;
+    button.disabled = disabled;
+    if (dnsInFlight.has(domain)) {
+      button.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Looking up…';
+    } else if (remaining > 0) {
+      button.textContent = `Wait ${Math.ceil(remaining / 1000)}s`;
+    } else {
+      button.innerHTML = '<i class="bi bi-globe2" aria-hidden="true"></i> DNS Lookup';
+    }
+  }
+
+  function syncAllDnsButtons(domain) {
+    $resultsContainer.find(".dns-lookup-btn").each(function () {
+      if (this.dataset.dnsDomain === domain) syncDnsButtonState(this, domain);
+    });
+  }
+
+  function startDnsCooldown(domain) {
+    const until = Date.now() + DNS_COOLDOWN_MS;
+    dnsCooldownUntil.set(domain, until);
+    syncAllDnsButtons(domain);
+    window.setTimeout(() => {
+      if ((dnsCooldownUntil.get(domain) || 0) <= Date.now()) {
+        dnsCooldownUntil.delete(domain);
+        syncAllDnsButtons(domain);
+      }
+    }, DNS_COOLDOWN_MS + 25);
+  }
+
+  async function fetchDnsRecord(domain, recordType) {
+    const url = new URL("https://cloudflare-dns.com/dns-query");
+    url.searchParams.set("name", domain);
+    url.searchParams.set("type", recordType);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), DNS_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url.href, {
+        method: "GET",
+        headers: { Accept: "application/dns-json" },
+        signal: controller.signal,
+        mode: "cors",
+        credentials: "omit",
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (!data || typeof data.Status !== "number") {
+        throw new Error("Cloudflare returned an unexpected response.");
+      }
+      return {
+        type: recordType,
+        records: Array.isArray(data.Answer)
+          ? data.Answer.map((answer) => String(answer.data ?? "")).filter(Boolean)
+          : [],
+        status: data.Status,
+      };
+    } catch (error) {
+      return {
+        type: recordType,
+        records: [],
+        error: error.name === "AbortError"
+          ? `Request timed out after ${DNS_TIMEOUT_MS / 1000} seconds.`
+          : (error.message || "DNS request failed."),
+      };
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  function showDnsLoading(domain) {
+    $("#dnsModalTitle").text("DNS records");
+    const body = document.getElementById("dnsModalBody");
+    body.replaceChildren();
+    const domainLabel = document.createElement("p");
+    domainLabel.className = "dns-modal-domain";
+    domainLabel.textContent = domain;
+    const loading = document.createElement("div");
+    loading.className = "text-center text-body-secondary py-4";
+    const spinner = document.createElement("span");
+    spinner.className = "spinner-border spinner-border-sm me-2";
+    spinner.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.textContent = `Resolving DNS records for ${domain}…`;
+    loading.append(spinner, label);
+    body.append(domainLabel, loading);
+  }
+
+  const dnsModalElement = document.getElementById("dnsModal");
+  dnsModalElement.addEventListener("show.bs.modal", () => {
+    // Bootstrap creates the backdrop after this event; mark the body first so
+    // its CSS applies on the backdrop's very first paint, without waiting for shown.
+    document.body.classList.add("dns-modal-opening");
+  });
+  dnsModalElement.addEventListener("hidden.bs.modal", () => {
+    document.body.classList.remove("dns-modal-opening");
+  });
+
+  function renderDnsRecords(results, domain) {
+    const body = document.getElementById("dnsModalBody");
+    body.replaceChildren();
+    const domainLabel = document.createElement("p");
+    domainLabel.className = "dns-modal-domain";
+    domainLabel.textContent = domain;
+    body.append(domainLabel);
+
+    results.forEach(({ type, records, error, status }) => {
+      const group = document.createElement("section");
+      group.className = "dns-record-group";
+
+      const heading = document.createElement("div");
+      heading.className = "dns-record-heading";
+      const title = document.createElement("h3");
+      title.className = "dns-record-title";
+      title.textContent = `${type}-Records`;
+      const badge = document.createElement("span");
+      badge.className = "badge dns-record-count";
+      badge.textContent = `${records.length} found`;
+      heading.append(title, badge);
+
+      const panel = document.createElement("div");
+      panel.className = "dns-record-values";
+
+      if (error) {
+        const message = document.createElement("p");
+        message.className = "text-danger mb-0";
+        message.textContent = `Lookup failed: ${error}`;
+        panel.append(message);
+      } else if (!records.length) {
+        const message = document.createElement("p");
+        message.className = "text-body-secondary fst-italic mb-0";
+        message.textContent = status === 3
+          ? "None (NXDOMAIN: domain does not exist)."
+          : status === 0
+            ? "None"
+            : `None (DNS status ${status}).`;
+        panel.append(message);
+      } else {
+        const list = document.createElement("div");
+        list.className = "dns-record-list";
+        records.forEach((record) => {
+          const item = document.createElement("div");
+          item.className = "dns-record-item";
+          item.textContent = record;
+          list.append(item);
+        });
+        panel.append(list);
+      }
+
+      group.append(heading, panel);
+      body.append(group);
+    });
+    const privacy = document.createElement("p");
+    privacy.className = "dns-modal-privacy text-body-secondary";
+    const privacyIcon = document.createElement("i");
+    privacyIcon.className = "bi bi-shield-check";
+    privacyIcon.setAttribute("aria-hidden", "true");
+    const privacyText = document.createElement("span");
+    privacyText.textContent = "DNS lookups are sent directly to Cloudflare. Your IP address and requested domain may be visible to Cloudflare. For more details, see About.";
+    privacy.append(privacyIcon, privacyText);
+    body.append(privacy);
+  }
+
+  async function openDnsModal(rawDomain) {
+    const domain = normalizeDnsDomain(rawDomain);
+    if (!domain) {
+      showToast("DNS lookup is available for valid domain names only.", "warning");
+      return;
+    }
+    if (dnsInFlight.has(domain) || (dnsCooldownUntil.get(domain) || 0) > Date.now()) {
+      syncAllDnsButtons(domain);
+      return;
+    }
+
+    // Start the cooldown immediately on click, independently of request duration.
+    startDnsCooldown(domain);
+    dnsInFlight.add(domain);
+    syncAllDnsButtons(domain);
+    showDnsLoading(domain);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("dnsModal")).show();
+
+    try {
+      const cached = dnsCache.get(domain);
+      let results;
+      if (cached && cached.expiresAt > Date.now()) {
+        results = cached.results;
+      } else {
+        const settled = await Promise.all(
+          DNS_RECORD_TYPES.map((type) => fetchDnsRecord(domain, type)),
+        );
+        results = settled;
+        // Cache only a complete set of successful HTTP responses briefly.
+        if (results.every((result) => !result.error)) {
+          dnsCache.set(domain, {
+            expiresAt: Date.now() + DNS_CACHE_TTL_MS,
+            results,
+          });
+        }
+      }
+      renderDnsRecords(results, domain);
+    } catch (error) {
+      const body = document.getElementById("dnsModalBody");
+      body.replaceChildren();
+      const message = document.createElement("p");
+      message.className = "text-danger mb-0";
+      message.textContent = error.message || "Could not retrieve DNS records.";
+      body.append(message);
+    } finally {
+      dnsInFlight.delete(domain);
+      syncAllDnsButtons(domain);
+      const remaining = (dnsCooldownUntil.get(domain) || 0) - Date.now();
+      if (remaining <= 0) {
+        dnsCooldownUntil.delete(domain);
+        syncAllDnsButtons(domain);
+      } else {
+        window.setTimeout(() => syncAllDnsButtons(domain), remaining + 25);
+      }
+    }
   }
 
   // Build text nodes around matched ranges instead of inserting user data as HTML.
