@@ -213,6 +213,10 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+.result-value {
+  font-size: 1.1rem;
+}
+
 .copy-btn {
   flex: 0 0 auto;
   min-height: 40px;
@@ -428,7 +432,8 @@ mark {
   min-height: 31px;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
   line-height: 1.5;
   gap: 0.35rem;
   white-space: nowrap;
