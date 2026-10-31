@@ -143,7 +143,8 @@ body {
   margin-bottom: 1rem;
 }
 #resultsInfo p {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
+  line-height: 1.3;
   margin-bottom: 0.75rem;
 }
 
