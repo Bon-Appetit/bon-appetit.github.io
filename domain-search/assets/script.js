@@ -934,15 +934,18 @@ $(function () {
     menu.className = "dropdown-menu";
 
     [
-      ["JSON", "export-json"],
-      ["Text", "export-text"],
-    ].forEach(([label, action]) => {
+      ["JSON", "export-json", "bi-braces"],
+      ["Text", "export-text", "bi-file-text"],
+    ].forEach(([label, action, iconClass]) => {
       const item = document.createElement("li");
       const option = document.createElement("button");
       option.type = "button";
       option.className = "dropdown-item";
       option.dataset.action = action;
-      option.textContent = label;
+      const optionIcon = document.createElement("i");
+      optionIcon.className = `bi ${iconClass} me-2`;
+      optionIcon.setAttribute("aria-hidden", "true");
+      option.append(optionIcon, document.createTextNode(label));
       item.append(option);
       menu.append(item);
     });
