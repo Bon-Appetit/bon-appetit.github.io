@@ -555,19 +555,20 @@ $(function () {
         const copy = document.createElement("button");
         copy.type = "button";
         copy.className = "btn btn-outline-primary btn-sm copy-btn";
+        copy.title = "Copy domain name";
         copy.innerHTML =
           '<i class="bi bi-clipboard" aria-hidden="true"></i><span>Copy</span>';
 
         const dns = document.createElement("button");
         dns.type = "button";
         dns.className = "btn btn-outline-secondary btn-sm dns-lookup-btn";
+        dns.title = "Lookup DNS records for this domain";
         dns.dataset.dnsDomain = match.value;
         dns.innerHTML =
           '<i class="bi bi-globe2" aria-hidden="true"></i><span>DNS Lookup</span>';
         const normalizedDomain = normalizeDnsDomain(match.value);
         if (!normalizedDomain) {
           dns.disabled = true;
-          dns.title = "DNS lookup is available for valid domain names only.";
           dns.setAttribute("aria-label", "DNS lookup unavailable for this value");
         } else {
           dns.dataset.dnsDomain = normalizedDomain;
