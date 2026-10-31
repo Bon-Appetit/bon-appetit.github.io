@@ -490,11 +490,19 @@ $(function () {
   }
 
   function displayResults(matches, state) {
-    // Summary and actions are refreshed even when the search has no matches.
+    // Summary and actions are refreshed for searches with matches.
     $resultsInfo.empty();
     $resultsContainer
       .toggleClass("result-grid", state.view === "cards")
       .toggleClass("result-list", state.view === "list");
+
+    if (!matches.length) {
+      const empty = document.createElement("div");
+      empty.className = "alert alert-secondary";
+      empty.textContent = "No matches found. Try another term or list.";
+      $resultsContainer.append(empty);
+      return;
+    }
 
     const summary = document.createElement("p");
     summary.className = "mb-2";
@@ -510,14 +518,6 @@ $(function () {
 
     addActionButton("Save search", "save", "btn-success");
     addExportDropdown();
-
-    if (!matches.length) {
-      const empty = document.createElement("div");
-      empty.className = "alert alert-secondary";
-      empty.textContent = "No matches found. Try another term or list.";
-      $resultsContainer.append(empty);
-      return;
-    }
 
     let position = 0;
     // Add a small batch at a time so a long list does not freeze the page while rendering.
