@@ -475,6 +475,8 @@ body.dns-modal-opening .modal-backdrop {
 }
 
 html[data-bs-theme="dark"] .dns-modal-close {
+  background-color: #6c757d;
+  border-color: #6c757d;
   filter: invert(1) grayscale(100%);
   opacity: 1;
 }
