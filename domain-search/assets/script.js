@@ -499,7 +499,13 @@ $(function () {
     if (!matches.length) {
       const empty = document.createElement("div");
       empty.className = "alert alert-secondary";
-      empty.textContent = "No matches found. Try another term or list.";
+      const emptyIcon = document.createElement("i");
+      emptyIcon.className = "bi bi-search me-2";
+      emptyIcon.setAttribute("aria-hidden", "true");
+      empty.append(
+        emptyIcon,
+        document.createTextNode("No matches found. Try another term or list."),
+      );
       $resultsContainer.append(empty);
       return;
     }
